@@ -1,83 +1,104 @@
-﻿using Azure.Storage.Blobs;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
+using Azure.Storage;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using alter_text_app.Models;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using System.Collections.Generic;
+using System.Text;
 using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+using Microsoft.Extensions.Logging;
 
 namespace alter_text_app.Controllers
 {
-    [Route("api/Home")]
-    public class ValuesController : Controller
+    public class HomeController : Controller
     {
-            string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
-            // GET: api/values
+        private IConfiguration _configuration;
 
-            // Create a BlobServiceClient object which will be used to create a container client
-            BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+        public HomeController(IConfiguration Configuration)
+        {
+            _configuration = Configuration;
+        }
 
-            //Create a unique name for the container
-            string containerName = "filedata" + Guid.NewGuid().ToString();
+        public IActionResult Index()
+        {
+            return View();
+        }
 
-            // Create the container and return a container client object
-            BlobContainerClient containerClient = await blobServiceClient.CreateBlobContainerAsync(containerName);
+        [HttpGet]
+        public IEnumerable<string> Get()
+        {
+            return new string[] { "value1", "value2" };
+        }
 
-            // Create a local file in the ./data/ directory for uploading and downloading
-            string localPath = "./data/";
-            string fileName = "textfile" + Guid.NewGuid().ToString() + ".txt";
-            string localFilePath = Path.Combine(localPath, fileName);
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(List<IFormFile> files)
+        {
+            string data = System.IO.File.ReadAllText(localFilePath, Encoding.UTF8);
 
+            return Content(data);
+        }
 
-            // Get a reference to a blob
-            BlobClient blobClient = containerClient.GetBlobClient(fileName);
-
-            Console.WriteLine("Uploading to Blob storage as blob:\n\t {0}\n", blobClient.Uri);
-
-            // Open the file and upload its data
-            using FileStream uploadFileStream = File.OpenRead(localFilePath);
-            await blobClient.UploadAsync(uploadFileStream, true);
-            uploadFileStream.Close();
-
-
-            // Download the blob to a local file
-            // Append the string "DOWNLOAD" before the .txt extension 
-            // so you can compare the files in the data directory
-            string downloadFilePath = localFilePath.Replace(".txt", "DOWNLOAD.txt");
-
-            Console.WriteLine("\nDownloading blob to\n\t{0}\n", downloadFilePath);
-
-            // Download the blob's contents and save it to a file
-            BlobDownloadInfo download = await blobClient.DownloadAsync();
-
-            using (FileStream downloadFileStream = File.OpenWrite(downloadFilePath))
+        [HttpPost("UploadText")]
+        public async Task<IActionResult> Post(List<IFormFile> files)
+        {
+            if (files != null)
             {
-                await download.Content.CopyToAsync(downloadFileStream);
-                downloadFileStream.Close();
-            }
+                //try
+                //{
+                    string connectionString = Environment.GetEnvironmentVariable("AZURE_");
 
-            [HttpGet]
-            public IEnumerable<string> Get()
-            {
-                return new string[] { "value1", "value2" };
-            }
+                    // Create a BlobServiceClient object which will be used to create a container client
+                    BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
 
-            // POST api/values
-            [HttpPost]
-            public void Post([FromBody]string value)
-            {
-            }
+                    //Create a unique name for the container
+                    string containerName = "textdata" + Guid.NewGuid().ToString();
 
-            // PUT api/values/5
-            [HttpPut("{id}")]
-            public void Put(int id, [FromBody]string value)
-            {
+                    // Create the container and return a container client object
+                    BlobContainerClient containerClient = await blobServiceClient.CreateBlobContainerAsync(containerName);
+
+
+                // Create a local file in the ./data/ directory for uploading and downloading
+                string localPath = "./data/";
+                string fileName = "textfiledata" + Guid.NewGuid().ToString() + ".txt";
+                string localFilePath = Path.Combine(localPath, fileName);
+
+                // Get a reference to a blob
+                BlobClient blobClient = containerClient.GetBlobClient(fileName);
+
+                    // Open the file and upload its data
+                    using FileStream uploadFileStream = System.IO.File.OpenRead(localFilePath);
+                    await blobClient.UploadAsync(uploadFileStream, true);
+                    uploadFileStream.Close();
+
+                    string downloadFilePath = localFilePath.Replace(".txt", "DOWNLOAD.txt");
+
+                    // Get the data
+                    string data = System.IO.File.ReadAllText(localFilePath, Encoding.UTF8);
+
+                    return Content(data);
+                //}
+                //catch
+                //{
+                //    //storageExeption for the error messages
+                //}
+                //finally
+                //{
+                //    if (files != null)
+                //    {
+                //        //files.Close();
+                //    }
+                //}
             }
-    
+            return Ok();
+                   
+
+        }
+
     }
 }
-

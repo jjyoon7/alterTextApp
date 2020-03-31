@@ -3,12 +3,11 @@
 export default function Intro() {
     return (
         <div className="intro">
-            <h2>1. upload text file.
+            <h2>1. upload a text file.
                 <br></br>
-                2. find out the <span className="word">most used Word</span>,<br></br> wrapped around with
-                 <span className="foo"> foo</span> and <span className="bar">bar</span>.
+                2. find out the <span className="word">most used Word</span>
                 <br></br>
-                3. type your own words to wrap the <span className="word">Word</span>!
+                3. pimp up your <span className="word">word</span> wrapped with <span className="foo"> foo</span> and <span className="bar">bar</span>.
             </h2>
         </div>
     )

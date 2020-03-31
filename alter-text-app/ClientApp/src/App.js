@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route } from 'react-router';
 
-import Main from './pages/Main'
+import Body from './pages/Body'
 import Header from './pages/Header'
 
 export default function App() {
@@ -9,7 +9,7 @@ export default function App() {
         <div className="root-grid">
             <Header />
             <Route path='/'>
-                <Main />
+                <Body />
             </Route>
         </div>
     )
