@@ -13,12 +13,14 @@ using System.Threading.Tasks;
 using System.Text;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using System.Net.Http;
 
 namespace alter_text_app.Controllers
 {
     public class HomeController : Controller
     {
         private IConfiguration _configuration;
+        //private Stream ms;
 
         public HomeController(IConfiguration Configuration)
         {
@@ -30,70 +32,56 @@ namespace alter_text_app.Controllers
             return View();
         }
 
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            return new string[] { "value1", "value2" };
-        }
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(List<IFormFile> files)
-        {
-            string data = System.IO.File.ReadAllText(localFilePath, Encoding.UTF8);
-
-            return Content(data);
-        }
-
         [HttpPost("UploadText")]
         public async Task<IActionResult> Post(List<IFormFile> files)
         {
             if (files != null)
             {
-                //try
-                //{
-                    string connectionString = Environment.GetEnvironmentVariable("AZURE_");
+                try
+                {
+                    //string connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
 
-                    // Create a BlobServiceClient object which will be used to create a container client
-                    BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
+                    //BlobServiceClient blobServiceClient = new BlobServiceClient(connectionString);
 
-                    //Create a unique name for the container
-                    string containerName = "textdata" + Guid.NewGuid().ToString();
+                    //string containerName = "text0data" + Guid.NewGuid().ToString();
 
-                    // Create the container and return a container client object
-                    BlobContainerClient containerClient = await blobServiceClient.CreateBlobContainerAsync(containerName);
+                    ////if it is a first time POST method has been triggered, create a new container
+                    //if (Request.Method != "POST")
+                    //{
+                       
+                    //    BlobContainerClient newContainerClient = await blobServiceClient.CreateBlobContainerAsync(containerName);
 
+                    //}
 
-                // Create a local file in the ./data/ directory for uploading and downloading
-                string localPath = "./data/";
-                string fileName = "textfiledata" + Guid.NewGuid().ToString() + ".txt";
-                string localFilePath = Path.Combine(localPath, fileName);
+                    ////if the POST method has already triggered before for the first time, connect with the container that is created.
+                    //BlobContainerClient containerClient = await blobServiceClient.GetBlobContainersAsync(containerName); // Q. how to solve the error staying 'containerName' to 'Azure.Storage.Blobs.Models.BlobContainerTraits' error 
 
-                // Get a reference to a blob
-                BlobClient blobClient = containerClient.GetBlobClient(fileName);
+                    //string fileName = TextFileUpload.Name; //Q. how to get the chosen file name (use fileStream) and replace with newly assignmed name? Current set up is not working properly.
+                    //string localFilePath = Path.GetFileNameWithoutExtension(fileName);
 
-                    // Open the file and upload its data
-                    using FileStream uploadFileStream = System.IO.File.OpenRead(localFilePath);
-                    await blobClient.UploadAsync(uploadFileStream, true);
-                    uploadFileStream.Close();
+                    //BlobClient blobClient = containerClient.GetBlobClient(fileName);
 
-                    string downloadFilePath = localFilePath.Replace(".txt", "DOWNLOAD.txt");
+                    //using FileStream uploadFileStream = System.IO.File.OpenRead(localFilePath);
+                    //await blobClient.UploadAsync(uploadFileStream, true);
 
-                    // Get the data
-                    string data = System.IO.File.ReadAllText(localFilePath, Encoding.UTF8);
+                    //await blobClient.UploadAsync(ms, new BlobHttpHeaders { ContentType = "text/plain" });
+                    //uploadFileStream.Close();
 
-                    return Content(data);
-                //}
-                //catch
-                //{
-                //    //storageExeption for the error messages
-                //}
-                //finally
-                //{
-                //    if (files != null)
-                //    {
-                //        //files.Close();
-                //    }
-                //}
+                    //string data = System.IO.File.ReadAllText(localFilePath, Encoding.UTF8);
+
+                    //return Content(data);
+                }
+                catch (StorageException e)
+                {
+                    //if (e.RequestInformation.ErrorCode == "BlobNotFound")
+                    //    throw new FileNotFoundException();
+
+                    //throw;
+                }
+                finally
+                {
+                    //Q. close filestream or clean up? but maybe finally is not necessary?
+                }
             }
             return Ok();
                    

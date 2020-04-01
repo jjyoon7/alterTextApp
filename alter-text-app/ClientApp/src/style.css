@@ -53,11 +53,11 @@ a {
     transition: transform 150ms;
 }
 
-    .btn:hover,
-    .btn:focus {
-        background-color: white;
-        transform: scale(1.025);
-    }
+.btn:hover,
+.btn:focus {
+    background-color: white;
+    transform: scale(1.025);
+}
 
 .btn-file-upload-display-label:hover,
 .btn-file-upload-display-label:focus {
